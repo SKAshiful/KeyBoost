@@ -65,8 +65,9 @@
         <textarea id="inputText" placeholder="Start typing here..." oninput="checkTyping()" disabled></textarea>
         <div id="stats">
             <p>Words Per Minute (WPM): <span id="wpm">-</span></p>
+            <p>Error Rate: <span id="errorRate">-</span>%</p>
         </div>
-        <button id="restartButton" onclick="restartTest()" disabled>Restart</button>
+        <button id="nextButton" onclick="loadNewParagraph()" disabled>Next Paragraph</button>
     </div>
 
     <div id="container">
@@ -82,46 +83,84 @@
         ];
 
         let currentParagraph = "";
+        let originalWords = [];
+        let remainingWords = [];
+        let typedWords = [];
         let typedWordsCount = 0;
-        let currentWord = "";
         let startTime = null;
         let isTyping = false;
 
         function toggleStartStop() {
             if (!isTyping) {
-                // Start typing test
+                // Start typing test - don't load new paragraph here
                 document.getElementById("startButton").textContent = "Stop";
                 document.getElementById("inputText").disabled = false;
-                document.getElementById("restartButton").disabled = true;
-                loadNewParagraph();
+                document.getElementById("nextButton").disabled = true;
+                
+                // Reset counters and storage
+                typedWordsCount = 0;
+                typedWords = [];
+                remainingWords = [...originalWords];
+                updateTextDisplay();
+                
                 startTime = new Date();
                 isTyping = true;
-                typedWordsCount = 0;
-                currentWord = "";
+                document.getElementById("inputText").value = "";
+                document.getElementById("inputText").focus();
             } else {
                 // Stop typing test and calculate results
                 document.getElementById("startButton").textContent = "Start";
                 document.getElementById("inputText").disabled = true;
-                document.getElementById("restartButton").disabled = false;
-                calculateWPM();
+                document.getElementById("nextButton").disabled = false;
+                calculateResults();
                 isTyping = false;
             }
         }
 
-        function calculateWPM() {
-            let inputText = document.getElementById("inputText").value;
-            let wordCount = inputText.split(" ").filter(word => word !== "").length;
+        function calculateResults() {
             let elapsedTime = (new Date() - startTime) / 60000; // time in minutes
-            let wpm = Math.round(wordCount / elapsedTime);
+            
+            // Calculate WPM
+            let wpm = Math.round(typedWordsCount / elapsedTime);
+            
+            // Calculate error rate
+            let errorRate = 0;
+            if (typedWords.length > 0) {
+                let wordErrors = 0;
+                const wordsToCompare = Math.min(typedWords.length, originalWords.length);
+                
+                for (let i = 0; i < wordsToCompare; i++) {
+                    if (typedWords[i] !== originalWords[i]) {
+                        wordErrors++;
+                    }
+                }
+                
+                errorRate = Math.round((wordErrors / wordsToCompare) * 100);
+            }
             
             document.getElementById("wpm").innerText = isNaN(wpm) ? "-" : wpm;
+            document.getElementById("errorRate").innerText = errorRate;
         }
 
         function loadNewParagraph() {
             currentParagraph = paragraphs[Math.floor(Math.random() * paragraphs.length)];
+            originalWords = currentParagraph.split(" ");
+            remainingWords = [...originalWords];
+            typedWords = [];
+            
             document.getElementById("inputText").value = "";
-            document.getElementById("textDisplay").innerText = currentParagraph;
+            updateTextDisplay();
+            
             document.getElementById("wpm").innerText = "-";
+            document.getElementById("errorRate").innerText = "-";
+            document.getElementById("startButton").textContent = "Start";
+            document.getElementById("inputText").disabled = true;
+            document.getElementById("nextButton").disabled = true;
+            isTyping = false;
+        }
+
+        function updateTextDisplay() {
+            document.getElementById("textDisplay").innerText = remainingWords.join(" ");
         }
 
         function checkTyping() {
@@ -129,27 +168,22 @@
             
             // Check if space was pressed
             if (inputText.endsWith(" ")) {
+                // Get the typed word (without the space)
+                const typedWord = inputText.trim();
+                
+                // Add to typed words array for error calculation
+                typedWords.push(typedWord);
+                
+                // Remove first word from remaining words
+                if (remainingWords.length > 0) {
+                    remainingWords.shift();
+                    updateTextDisplay();
+                }
+                
+                // Increment counter and clear input
                 typedWordsCount++;
-                inputText = inputText.trim();
-                document.getElementById("inputText").value = inputText;
-                
-                // Get words from the current paragraph
-                const paragraphWords = currentParagraph.split(" ");
-                
-                // Update the display to remove completed words
-                const remainingWords = paragraphWords.slice(typedWordsCount);
-                document.getElementById("textDisplay").innerText = remainingWords.join(" ");
-                
-                // Clear the input field after each word
                 document.getElementById("inputText").value = "";
             }
-        }
-
-        function restartTest() {
-            document.getElementById("startButton").textContent = "Start";
-            isTyping = false;
-            typedWordsCount = 0;
-            loadNewParagraph();
         }
 
         function toggleDarkMode() {
