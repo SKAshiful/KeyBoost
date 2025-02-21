@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KeyBoost By Ashiful</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #ffffff;
+            color: #000000;
+            transition: 0.3s;
+        }
+        .dark-mode {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+        #container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px #aaa;
+            background-color: inherit;
+        }
+        #textDisplay {
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-align: left;
+            height: 60px; /* Show only 3 lines */
+            overflow: hidden;
+            white-space: pre-wrap;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+        }
+        textarea {
+            width: 100%;
+            height: 80px;
+            font-size: 16px;
+            padding: 10px;
+        }
+        #stats {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>KeyBoost By Ashiful</h1>
+    <button onclick="toggleDarkMode()">Dark Mode</button>
+
+    <div id="container">
+        <button id="startButton" onclick="toggleStartStop()">Start</button>
+        <div id="textDisplay"></div>
+        <textarea id="inputText" placeholder="Start typing here..." oninput="checkTyping()" disabled></textarea>
+        <div id="stats">
+            <p>Words Per Minute (WPM): <span id="wpm">-</span></p>
+        </div>
+        <button id="restartButton" onclick="restartTest()" disabled>Restart</button>
+    </div>
+
+    <div id="container">
+        <h2>Add New Paragraph</h2>
+        <textarea id="newParagraph" placeholder="Write a new paragraph..."></textarea>
+        <button onclick="addParagraph()">Add Paragraph</button>
+    </div>
+
+    <script>
+        let paragraphs = JSON.parse(localStorage.getItem("paragraphs")) || [
+            "Typing is an essential skill that improves with practice. Regular typing helps you increase speed and accuracy, making you more efficient in work and studies.",
+            "The history of typing dates back to the invention of the typewriter. Over time, keyboards evolved, and today we use mechanical and membrane keyboards for various tasks."
+        ];
+
+        let currentParagraph = "";
+        let typedWordsCount = 0;
+        let currentWord = "";
+        let startTime = null;
+        let isTyping = false;
+
+        function toggleStartStop() {
+            if (!isTyping) {
+                // Start typing test
+                document.getElementById("startButton").textContent = "Stop";
+                document.getElementById("inputText").disabled = false;
+                document.getElementById("restartButton").disabled = true;
+                loadNewParagraph();
+                startTime = new Date();
+                isTyping = true;
+                typedWordsCount = 0;
+                currentWord = "";
+            } else {
+                // Stop typing test and calculate results
+                document.getElementById("startButton").textContent = "Start";
+                document.getElementById("inputText").disabled = true;
+                document.getElementById("restartButton").disabled = false;
+                calculateWPM();
+                isTyping = false;
+            }
+        }
+
+        function calculateWPM() {
+            let inputText = document.getElementById("inputText").value;
+            let wordCount = inputText.split(" ").filter(word => word !== "").length;
+            let elapsedTime = (new Date() - startTime) / 60000; // time in minutes
+            let wpm = Math.round(wordCount / elapsedTime);
+            
+            document.getElementById("wpm").innerText = isNaN(wpm) ? "-" : wpm;
+        }
+
+        function loadNewParagraph() {
+            currentParagraph = paragraphs[Math.floor(Math.random() * paragraphs.length)];
+            document.getElementById("inputText").value = "";
+            document.getElementById("textDisplay").innerText = currentParagraph;
+            document.getElementById("wpm").innerText = "-";
+        }
+
+        function checkTyping() {
+            let inputText = document.getElementById("inputText").value;
+            
+            // Check if space was pressed
+            if (inputText.endsWith(" ")) {
+                typedWordsCount++;
+                inputText = inputText.trim();
+                document.getElementById("inputText").value = inputText;
+                
+                // Get words from the current paragraph
+                const paragraphWords = currentParagraph.split(" ");
+                
+                // Update the display to remove completed words
+                const remainingWords = paragraphWords.slice(typedWordsCount);
+                document.getElementById("textDisplay").innerText = remainingWords.join(" ");
+                
+                // Clear the input field after each word
+                document.getElementById("inputText").value = "";
+            }
+        }
+
+        function restartTest() {
+            document.getElementById("startButton").textContent = "Start";
+            isTyping = false;
+            typedWordsCount = 0;
+            loadNewParagraph();
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+        }
+
+        function addParagraph() {
+            let newParagraph = document.getElementById("newParagraph").value.trim();
+            if (newParagraph.length > 0) {
+                paragraphs.push(newParagraph);
+                localStorage.setItem("paragraphs", JSON.stringify(paragraphs));
+                document.getElementById("newParagraph").value = "";
+                alert("Paragraph added successfully!");
+            } else {
+                alert("Please enter a valid paragraph.");
+            }
+        }
+
+        window.onload = function () {
+            loadNewParagraph();
+        };
+    </script>
+
+</body>
+</html>
