@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KeyBoost By Ashiful</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6c8eb4;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-bg: #f8f9fa;
+            --dark-bg: #1e1e1e;
+            --light-text: #f8f9fa;
+            --dark-text: #343a40;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            transition: var(--transition);
+        }
+
+        .dark-mode {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+        }
+
+        .dark-mode .container {
+            background-color: #2d2d2d;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .dark-mode .btn-primary {
+            background-color: #5a7ca5;
+        }
+
+        .dark-mode #textDisplay {
+            background-color: #333;
+            color: #eee;
+            border-color: #666;
+        }
+
+        .dark-mode #inputText {
+            background-color: #333;
+            color: #eee;
+            border-color: #666;
+        }
+        
+        /* Fix for text visibility in night mode */
+        .dark-mode .current-word {
+            background-color: #4a6fa5;
+            color: white;
+        }
+        
+        .dark-mode .correct-word {
+            color: #4ade80;
+        }
+        
+        .dark-mode .incorrect-word {
+            color: #f87171;
+        }
+        
+        .dark-mode .stat-value {
+            color: #90caf9;
+        }
+        
+        .dark-mode .stat-label {
+            color: #e2e8f0;
+        }
+
+        .wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin: 10px 0;
+        }
+
+        .theme-toggle {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            transition: var(--transition);
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+            transition: var(--transition);
+        }
+
+        .typing-area {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        #textDisplay {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            min-height: 150px;
+            transition: var(--transition);
+            max-height: 150px;
+            overflow: hidden;
+        }
+
+        .current-word {
+            background-color: #e3f2fd;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .correct-word {
+            color: var(--success-color);
+        }
+
+        .incorrect-word {
+            color: var(--danger-color);
+            text-decoration: line-through;
+        }
+
+        #inputText {
+            width: 100%;
+            font-size: 1.1rem;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius);
+            resize: none;
+            transition: var(--transition);
+        }
+
+        #inputText:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+        }
+
+        .buttons-row {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: bold;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #bd2130;
+        }
+        
+        .btn-link {
+            background: none;
+            color: #6c757d;
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            text-decoration: underline;
+        }
+
+        .stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .dark-mode .stat-card {
+            background-color: #333;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 5px 0;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .dark-mode .stat-label {
+            color: #adb5bd;
+        }
+
+        .countdown {
+            font-size: 3rem;
+            font-weight: bold;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--primary-color);
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.8);
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .countdown.active {
+            opacity: 1;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary-color);
+            transition: width 0.3s;
+        }
+
+        .results-summary {
+            display: none;
+            padding: 15px;
+            background-color: #e3f2fd;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+        }
+
+        .dark-mode .results-summary {
+            background-color: #2c3e50;
+        }
+
+        .paragraph-library {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .paragraph-card {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            transition: var(--transition);
+        }
+
+        .dark-mode .paragraph-card {
+            background-color: #333;
+            border-color: #666;
+        }
+
+        .paragraph-text {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            max-height: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .paragraph-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        /* Fix for large text input */
+        #newParagraph {
+            width: 100%;
+            margin: 15px 0;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ccc;
+            min-height: 120px;
+            max-height: 300px;
+            overflow-y: auto;
+            resize: vertical;
+        }
+
+        .dark-mode #newParagraph {
+            background-color: #333;
+            color: #eee;
+            border-color: #666;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            header {
+                justify-content: center;
+                text-align: center;
+            }
+
+            .theme-toggle {
+                margin-top: 10px;
+            }
+
+            #textDisplay {
+                font-size: 1rem;
+                min-height: 120px;
+            }
+
+            #inputText {
+                font-size: 1rem;
+                padding: 10px;
+            }
+
+            .stat-card {
+                min-width: 120px;
+            }
+
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <h1>KeyBoost By Ashiful</h1>
+            <div>
+                <button class="theme-toggle" onclick="toggleDarkMode()">🌙 Night Mode</button>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="buttons-row">
+                <button id="nextButton" class="btn btn-secondary" onclick="loadNewParagraph()">New Paragraph</button>
+            </div>
+
+            <div class="typing-area">
+                <div id="textDisplay"></div>
+                <textarea id="inputText" placeholder="Start typing here..." oninput="checkTyping()"></textarea>
+            </div>
+
+            <div class="progress-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-value" id="wpm">0</div>
+                    <div class="stat-label">Words Per Minute</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="accuracy">100%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="timeElapsed">0</div>
+                    <div class="stat-label">Seconds Elapsed</div>
+                </div>
+            </div>
+
+            <div id="resultsSummary" class="results-summary">
+                <h3>Your Results</h3>
+                <p>Final WPM: <span id="finalWpm">-</span></p>
+                <p>Accuracy: <span id="finalAccuracy">-</span>%</p>
+                <p>Correct Words: <span id="correctWords">-</span></p>
+                <p>Incorrect Words: <span id="incorrectWords">-</span></p>
+                <p>Time Taken: <span id="timeTaken">-</span> seconds</p>
+            </div>
+        </div>
+
+        <div class="container">
+            <h2>Add New Paragraph</h2>
+            <textarea id="newParagraph" placeholder="Write a new paragraph for practice..." rows="5"></textarea>
+            <div class="buttons-row">
+                <button class="btn btn-primary" onclick="addParagraph()">Add Paragraph</button>
+                <button class="btn btn-secondary" onclick="generateRandomParagraph()">Generate Random Paragraph</button>
+            </div>
+
+            <h3 style="margin-top: 20px;">Your Paragraphs Library</h3>
+            <div id="paragraphLibrary" class="paragraph-library"></div>
+        </div>
+        
+        <div class="footer">
+            <button class="btn-link" onclick="window.location.href='old.html'">Go to Old Version</button>
+        </div>
+    </div>
+
+    <script>
+        // Default paragraphs
+        const defaultParagraphs = [
+            "The sun rises in the east and sets in the west. It gives us light and heat. Plants need sunlight to grow. Animals need plants for food.",
+            "My cat likes to play with toys. She sleeps a lot during the day. At night, she runs around the house. She is very cute and fluffy.",
+            "Typing is an essential skill that improves with practice. Regular typing helps you increase speed and accuracy, making you more efficient in work and studies.",
+            "The history of typing dates back to the invention of the typewriter. Over time, keyboards evolved, and today we use mechanical and membrane keyboards for various tasks.",
+            "The acquisition of proficient typing skills requires deliberate practice and dedication. Studies indicate that individuals who engage in consistent typing exercises demonstrate significant improvements in both velocity and precision.",
+            "Quantum computing leverages the principles of quantum mechanics to process information. Unlike classical bits, quantum bits or qubits can exist in multiple states simultaneously, potentially solving complex problems exponentially faster."
+        ];
+
+        // Initialize variables
+        let paragraphs = JSON.parse(localStorage.getItem("paragraphs")) || [];
+        
+        // Convert old format to new format if needed
+        if (typeof paragraphs === 'object' && !Array.isArray(paragraphs)) {
+            let newParagraphs = [];
+            
+            // Combine all difficulty levels into a single array
+            Object.values(paragraphs).forEach(levelParagraphs => {
+                if (Array.isArray(levelParagraphs)) {
+                    newParagraphs = newParagraphs.concat(levelParagraphs);
+                }
+            });
+            
+            paragraphs = newParagraphs;
+            localStorage.setItem("paragraphs", JSON.stringify(paragraphs));
+        }
+        
+        if (paragraphs.length === 0) {
+            paragraphs = defaultParagraphs;
+            localStorage.setItem("paragraphs", JSON.stringify(paragraphs));
+        }
+
+        let currentParagraph = "";
+        let originalWords = [];
+        let typedWords = [];
+        let currentWordIndex = 0;
+        let startTime = null;
+        let isTyping = false;
+        let timer = null;
+        let timeElapsed = 0;
+        let correctWordsCount = 0;
+        let incorrectWordsCount = 0;
+        let isDarkMode = false;
+        
+        // Variables for 5-line display
+        let allWords = [];
+        let currentChunkIndex = 0;
+        let chunks = [];
+        let wordsPerChunk = 0;
+        let linesPerChunk = 5;
+
+        // Initialize page
+        window.onload = function() {
+            loadNewParagraph();
+            displayParagraphLibrary();
+            
+            // Check if dark mode was previously enabled
+            if (localStorage.getItem("darkMode") === "true") {
+                document.body.classList.add("dark-mode");
+                document.querySelector(".theme-toggle").textContent = "☀️ Light Mode";
+                isDarkMode = true;
+            }
+        };
+
+        // Toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+            isDarkMode = document.body.classList.contains("dark-mode");
+            localStorage.setItem("darkMode", isDarkMode);
+            
+            // Update button text
+            const themeToggle = document.querySelector(".theme-toggle");
+            themeToggle.textContent = isDarkMode ? "☀️ Light Mode" : "🌙 Night Mode";
+        }
+
+        // Split paragraph into chunks of approximately 5 lines
+        function splitParagraphIntoChunks(paragraph) {
+            // Calculate words per chunk based on average words per line
+            // Assuming average of 10 words per line for 5 lines
+            const avgWordsPerLine = 10;
+            wordsPerChunk = avgWordsPerLine * linesPerChunk;
+            
+            // Split paragraph into words
+            allWords = paragraph.split(" ");
+            
+            // Create chunks
+            chunks = [];
+            let chunkWords = [];
+            
+            for (let i = 0; i < allWords.length; i++) {
+                chunkWords.push(allWords[i]);
+                
+                // When we reach the estimated words per chunk or end of paragraph, create a new chunk
+                if (chunkWords.length >= wordsPerChunk || i === allWords.length - 1) {
+                    chunks.push(chunkWords.join(" "));
+                    chunkWords = [];
+                }
+            }
+            
+            // If last chunk is very small, combine with previous chunk
+            if (chunks.length > 1 && chunks[chunks.length - 1].split(" ").length < wordsPerChunk / 3) {
+                const lastChunk = chunks.pop();
+                chunks[chunks.length - 1] += " " + lastChunk;
+            }
+            
+            return chunks;
+        }
+
+        // Load a new paragraph
+        function loadNewParagraph() {
+            // Select random paragraph
+            currentParagraph = paragraphs[Math.floor(Math.random() * paragraphs.length)];
+            
+            // Split paragraph into chunks of approximately 5 lines
+            splitParagraphIntoChunks(currentParagraph);
+            
+            // Reset indices
+            currentChunkIndex = 0;
+            currentWordIndex = 0;
+            
+            // Get words for the current chunk
+            originalWords = chunks[currentChunkIndex].split(" ");
+            
+            // Reset test state
+            document.getElementById("inputText").value = "";
+            document.getElementById("wpm").textContent = "0";
+            document.getElementById("accuracy").textContent = "100%";
+            document.getElementById("timeElapsed").textContent = "0";
+            document.getElementById("progressBar").style.width = "0%";
+            document.getElementById("resultsSummary").style.display = "none";
+            
+            // Reset typing state
+            stopTypingTest();
+            isTyping = false;
+            typedWords = [];
+            correctWordsCount = 0;
+            incorrectWordsCount = 0;
+            timeElapsed = 0;
+            
+            updateTextDisplay();
+        }
+
+        // Load the next chunk of text
+        function loadNextChunk() {
+            currentChunkIndex++;
+            
+            // Check if there are more chunks
+            if (currentChunkIndex < chunks.length) {
+                // Reset word index for the new chunk
+                currentWordIndex = 0;
+                
+                // Get words for the new chunk
+                originalWords = chunks[currentChunkIndex].split(" ");
+                
+                // Clear input
+                document.getElementById("inputText").value = "";
+                
+                // Update display
+                updateTextDisplay();
+                
+                return true;
+            } else {
+                // No more chunks, test is complete
+                stopTypingTest();
+                return false;
+            }
+        }
+
+        // Start the typing test automatically
+        function startTypingTest() {
+            if (isTyping) return;
+            
+            document.getElementById("nextButton").disabled = true;
+            
+            // Reset counters
+            timeElapsed = 0;
+            document.getElementById("timeElapsed").textContent = timeElapsed;
+            
+            startTime = new Date();
+            isTyping = true;
+            
+            // Start timer
+            timer = setInterval(() => {
+                timeElapsed++;
+                document.getElementById("timeElapsed").textContent = timeElapsed;
+                
+                updateWPM();
+                
+                // Calculate total progress across all chunks
+                const totalWords = allWords.length;
+                const wordsCompletedInPreviousChunks = currentChunkIndex > 0 ? 
+                    chunks.slice(0, currentChunkIndex).join(" ").split(" ").length : 0;
+                const wordsCompletedInCurrentChunk = currentWordIndex;
+                const totalWordsCompleted = wordsCompletedInPreviousChunks + wordsCompletedInCurrentChunk;
+                
+                const progress = (totalWordsCompleted / totalWords) * 100;
+                document.getElementById("progressBar").style.width = `${progress}%`;
+            }, 1000);
+        }
+
+        // Stop the typing test
+        function stopTypingTest() {
+            if (!isTyping) return;
+            
+            clearInterval(timer);
+            document.getElementById("nextButton").disabled = false;
+            
+            calculateFinalResults();
+            isTyping = false;
+        }
+
+        // Calculate and display final results
+        function calculateFinalResults() {
+            const elapsedTimeMinutes = timeElapsed / 60; // convert seconds to minutes
+            
+            // Calculate WPM
+            const wpm = Math.round((correctWordsCount / elapsedTimeMinutes) || 0);
+            
+            // Calculate accuracy
+            const totalWords = correctWordsCount + incorrectWordsCount;
+            const accuracy = totalWords > 0 ? Math.round((correctWordsCount / totalWords) * 100) : 100;
+            
+            // Display results
+            document.getElementById("finalWpm").textContent = wpm;
+            document.getElementById("finalAccuracy").textContent = accuracy;
+            document.getElementById("correctWords").textContent = correctWordsCount;
+            document.getElementById("incorrectWords").textContent = incorrectWordsCount;
+            document.getElementById("timeTaken").textContent = timeElapsed;
+            
+            // Show results summary
+            document.getElementById("resultsSummary").style.display = "block";
+        }
+
+        // Update WPM in real-time
+        function updateWPM() {
+            const elapsedTimeMinutes = timeElapsed / 60; // Convert seconds to minutes
+            if (elapsedTimeMinutes > 0) {
+                const currentWpm = Math.round((correctWordsCount / elapsedTimeMinutes) || 0);
+                document.getElementById("wpm").textContent = currentWpm;
+                
+                const accuracy = (correctWordsCount + incorrectWordsCount) > 0 
+                    ? Math.round((correctWordsCount / (correctWordsCount + incorrectWordsCount)) * 100) 
+                    : 100;
+                document.getElementById("accuracy").textContent = `${accuracy}%`;
+            }
+        }
+
+        // Update text display with highlighting for current word
+        function updateTextDisplay() {
+            const textDisplay = document.getElementById("textDisplay");
+            textDisplay.innerHTML = "";
+            
+            originalWords.forEach((word, index) => {
+                const wordSpan = document.createElement("span");
+                wordSpan.textContent = word;
+                
+                if (index < currentWordIndex) {
+                    // Words already typed
+                    if (index < typedWords.length && typedWords[index] === word) {
+                        wordSpan.className = "correct-word";
+                    } else {
+                        wordSpan.className = "incorrect-word";
+                    }
+                } else if (index === currentWordIndex) {
+                    // Current word to type
+                    wordSpan.className = "current-word";
+                }
+                
+                textDisplay.appendChild(wordSpan);
+                
+                // Add space between words
+                if (index < originalWords.length - 1) {
+                    textDisplay.appendChild(document.createTextNode(" "));
+                }
+            });
+            
+            // Scroll to ensure current word is visible
+            if (textDisplay.children[currentWordIndex]) {
+                textDisplay.children[currentWordIndex].scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+            }
+        }
+
+        // Check typing input
+        function checkTyping() {
+            // Auto-start test when user begins typing
+            if (!isTyping && document.getElementById("inputText").value.length > 0) {
+                startTypingTest();
+            }
+            
+            if (!isTyping) return;
+            
+            let inputText = document.getElementById("inputText").value;
+            
+            // Check if space was pressed (word completed)
+            if (inputText.endsWith(" ")) {
+                // Get the typed word (without the space)
+                const typedWord = inputText.trim();
+                
+                // Add to typed words array
+                typedWords.push(typedWord);
+                
+                // Check if word is correct
+                if (typedWord === originalWords[currentWordIndex]) {
+                    correctWordsCount++;
+                } else {
+                    incorrectWordsCount++;
+                }
+                
+                // Move to next word
+                currentWordIndex++;
+                document.getElementById("inputText").value = "";
+                
+                // Update display
+                updateTextDisplay();
+                
+                // Check if current chunk is completed
+                if (currentWordIndex >= originalWords.length) {
+                    const hasMoreChunks = loadNextChunk();
+                    if (!hasMoreChunks) {
+                        stopTypingTest(); // No more chunks, stop the test
+                    }
+                    // Reset typed words for the new chunk
+                    typedWords = [];
+                }
+            }
+        }
+
+        // Add paragraph to library
+        function addParagraph() {
+            let newParagraph = document.getElementById("newParagraph").value.trim();
+            if (newParagraph.length > 0) {
+                paragraphs.push(newParagraph);
+                localStorage.setItem("paragraphs", JSON.stringify(paragraphs));
+                document.getElementById("newParagraph").value = "";
+                
+                displayParagraphLibrary();
+                alert("Paragraph added successfully!");
+            } else {
+                alert("Please enter a valid paragraph.");
+            }
+        }
+
+        // Generate random paragraph
+        function generateRandomParagraph() {
+            const topics = ["technology", "nature", "science", "history", "art"];
+            const selectedTopic = topics[Math.floor(Math.random() * topics.length)];
+            
+            // Predefined paragraphs by topic
+            const paragraphsByTopic = {
+                technology: "Modern technology continues to advance at an unprecedented rate. From artificial intelligence to quantum computing, innovations are transforming how we live and work. Smart devices have become integral to daily activities, connecting our homes, vehicles, and personal lives in a vast digital ecosystem.",
+                nature: "The diverse ecosystems of our planet host an incredible variety of plant and animal species. Forests act as the lungs of Earth, while oceans regulate global temperature. Conservation efforts are essential to maintain biodiversity and ensure environmental sustainability for future generations.",
+                science: "Scientific discovery propels humanity forward through methodical observation and experimentation. Researchers across disciplines collaborate to solve complex problems and expand our understanding of the universe. Each breakthrough builds upon previous knowledge, creating a foundation for future innovations.",
+                history: "Historical events have shaped modern societies through complex interactions of culture, politics, and economics. By studying the past, we gain insights into human behavior and societal patterns. Primary sources provide valuable perspectives on how people experienced significant moments throughout different eras.",
+                art: "Artistic expression reflects cultural values and personal perspectives across generations. Various mediums allow creators to communicate ideas and emotions beyond language barriers. Museums preserve important works while contemporary artists continue to push boundaries and question established norms through their creations."
+            };
+            
+            document.getElementById("newParagraph").value = paragraphsByTopic[selectedTopic];
+        }
+
+        // Display paragraphs in library
+        function displayParagraphLibrary() {
+            const libraryContainer = document.getElementById("paragraphLibrary");
+            libraryContainer.innerHTML = "";
+            
+            paragraphs.forEach((paragraph, index) => {
+                const card = document.createElement("div");
+                card.className = "paragraph-card";
+                
+                const text = document.createElement("div");
+                text.className = "paragraph-text";
+                text.textContent = paragraph;
+                
+                const actions = document.createElement("div");
+                actions.className = "paragraph-actions";
+                
+                const deleteButton = document.createElement("button");
+                deleteButton.className = "btn btn-secondary";
+                deleteButton.textContent = "Delete";
+                deleteButton.style.padding = "4px 8px";
+                deleteButton.style.fontSize = "0.8rem";
+                deleteButton.onclick = function() {
+                    deleteParagraph(index);
+                };
+                
+                actions.appendChild(deleteButton);
+                
+                card.appendChild(text);
+                card.appendChild(actions);
+                
+                libraryContainer.appendChild(card);
+            });
+        }
+
+        // Delete paragraph from library
+        function deleteParagraph(index) {
+            if (confirm("Are you sure you want to delete this paragraph?")) {
+                paragraphs.splice(index, 1);
+                
+                // If no paragraphs left, add default ones back
+                if (paragraphs.length === 0) {
+                    paragraphs = [...defaultParagraphs];
+                }
+                
+                localStorage.setItem("paragraphs", JSON.stringify(paragraphs));
+                displayParagraphLibrary();
+            }
+        }
+    </script>
+</body>
+</html>
